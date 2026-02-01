@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Index Performance Demo</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Spatial Indexing Performance Demo</h1>
+        <p>Compare query speeds with and without PostGIS spatial indexes</p>
+    </header>
+
+    <main>
+        <div class="controls">
+            <button id="run-query-btn">Run Spatial Query</button>
+            <label>
+                Points to query:
+                <select id="query-type">
+                    <option value="bbox">Bounding Box (visible area)</option>
+                    <option value="radius">Radius Search (center point)</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="maps-container">
+            <div class="map-panel">
+                <div class="map-header">
+                    <h2>Without Spatial Index</h2>
+                    <div class="timing">
+                        <span class="label">Query time:</span>
+                        <span id="time-no-index" class="time">--</span>
+                    </div>
+                </div>
+                <div id="map-no-index" class="map"></div>
+                <div class="results">
+                    <span>Points found: <span id="count-no-index">--</span></span>
+                </div>
+            </div>
+
+            <div class="map-panel">
+                <div class="map-header">
+                    <h2>With Spatial Index</h2>
+                    <div class="timing">
+                        <span class="label">Query time:</span>
+                        <span id="time-indexed" class="time">--</span>
+                    </div>
+                </div>
+                <div id="map-indexed" class="map"></div>
+                <div class="results">
+                    <span>Points found: <span id="count-indexed">--</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>How it works</h3>
+            <p>
+                Both maps query identical datasets stored in Supabase (PostgreSQL + PostGIS).
+                The left table has no spatial index, while the right table uses a GiST index
+                on the geometry column. Pan/zoom the maps and click "Run Spatial Query" to
+                see the performance difference.
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Built with Leaflet, Supabase, and PostGIS</p>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <!-- App JS -->
+    <script src="js/config.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
