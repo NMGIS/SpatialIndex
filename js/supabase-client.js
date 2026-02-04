@@ -1,5 +1,5 @@
 // Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * Query locations within a bounding box
@@ -16,7 +16,7 @@ async function queryBoundingBox(tableName, bounds) {
     const startTime = performance.now();
 
     // Use RPC call to execute PostGIS spatial query
-    const { data, error } = await supabase.rpc('query_bbox', {
+    const { data, error } = await supabaseClient.rpc('query_bbox', {
         table_name: tableName,
         min_lng: sw.lng,
         min_lat: sw.lat,
@@ -50,7 +50,7 @@ async function queryBoundingBox(tableName, bounds) {
 async function queryRadius(tableName, lat, lng, radiusMeters) {
     const startTime = performance.now();
 
-    const { data, error } = await supabase.rpc('query_radius', {
+    const { data, error } = await supabaseClient.rpc('query_radius', {
         table_name: tableName,
         center_lng: lng,
         center_lat: lat,
@@ -67,5 +67,73 @@ async function queryRadius(tableName, lat, lng, radiusMeters) {
     return {
         data: data || [],
         time: endTime - startTime
+    };
+}
+
+/**
+ * Query combined table (polygons) within a bounding box
+ * Returns GeoJSON for polygon display
+ *
+ * @param {object} bounds - Leaflet bounds object
+ * @returns {Promise<{data: Array, time: number}>}
+ */
+async function queryCombinedBbox(bounds) {
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+
+    const startTime = performance.now();
+
+    const { data, error } = await supabaseClient.rpc('query_combined_bbox', {
+        min_lng: sw.lng,
+        min_lat: sw.lat,
+        max_lng: ne.lng,
+        max_lat: ne.lat
+    });
+
+    const endTime = performance.now();
+
+    if (error) {
+        console.error('Query error:', error);
+        throw error;
+    }
+
+    return {
+        data: data || [],
+        time: endTime - startTime,
+        isPolygon: true
+    };
+}
+
+/**
+ * Query indexed table (polygons) within a bounding box
+ * Returns GeoJSON for polygon display
+ *
+ * @param {object} bounds - Leaflet bounds object
+ * @returns {Promise<{data: Array, time: number}>}
+ */
+async function queryIndexedBbox(bounds) {
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+
+    const startTime = performance.now();
+
+    const { data, error } = await supabaseClient.rpc('query_indexed_bbox', {
+        min_lng: sw.lng,
+        min_lat: sw.lat,
+        max_lng: ne.lng,
+        max_lat: ne.lat
+    });
+
+    const endTime = performance.now();
+
+    if (error) {
+        console.error('Query error:', error);
+        throw error;
+    }
+
+    return {
+        data: data || [],
+        time: endTime - startTime,
+        isPolygon: true
     };
 }

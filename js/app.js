@@ -36,23 +36,18 @@ async function runComparison() {
         const queryType = queryTypeSelect.value;
         let resultNoIndex, resultIndexed;
 
-        if (queryType === 'bbox') {
-            const bounds = getCurrentBounds();
+        const bounds = getCurrentBounds();
+        const zoom = getCurrentZoom();
 
-            // Run both queries
-            [resultNoIndex, resultIndexed] = await Promise.all([
-                queryBoundingBox(TABLES.noIndex, bounds),
-                queryBoundingBox(TABLES.indexed, bounds)
-            ]);
-        } else {
-            const center = getCurrentCenter();
-
-            // Run both queries
-            [resultNoIndex, resultIndexed] = await Promise.all([
-                queryRadius(TABLES.noIndex, center.lat, center.lng, SEARCH_RADIUS),
-                queryRadius(TABLES.indexed, center.lat, center.lng, SEARCH_RADIUS)
-            ]);
+        // Prevent timeout on large areas
+        if (zoom < 6) {
+            alert('Please zoom in more (zoom level 6+) to avoid query timeout.');
+            return;
         }
+
+        // Query sequentially to avoid cache effects
+        resultNoIndex = await queryCombinedBbox(bounds);
+        resultIndexed = await queryIndexedBbox(bounds);
 
         // Update displays
         updateResults('noIndex', resultNoIndex);
@@ -83,8 +78,12 @@ function updateResults(mapType, result) {
     // Update count
     countEl.textContent = result.data.length;
 
-    // Add markers to map
-    addMarkers(mapType, result.data);
+    // Add markers or polygons to map
+    if (result.isPolygon) {
+        addPolygons(mapType, result.data);
+    } else {
+        addMarkers(mapType, result.data);
+    }
 }
 
 /**

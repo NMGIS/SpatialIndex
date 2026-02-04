@@ -69,6 +69,13 @@ function getCurrentCenter() {
 }
 
 /**
+ * Get current zoom level
+ */
+function getCurrentZoom() {
+    return mapIndexed.getZoom();
+}
+
+/**
  * Clear all markers from both maps
  */
 function clearMarkers() {
@@ -99,5 +106,35 @@ function addMarkers(mapType, points) {
         }
 
         layerGroup.addLayer(marker);
+    });
+}
+
+/**
+ * Add polygons to a specific map
+ * @param {string} mapType - 'noIndex' or 'indexed'
+ * @param {Array} features - Array of {geojson, name, admin_type} objects
+ */
+function addPolygons(mapType, features) {
+    const layerGroup = mapType === 'indexed' ? markersIndexed : markersNoIndex;
+    const fillColor = mapType === 'indexed' ? '#27ae60' : '#e74c3c';
+
+    features.forEach(feature => {
+        if (!feature.geojson) return;
+
+        const polygon = L.geoJSON(feature.geojson, {
+            style: {
+                fillColor: fillColor,
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.5
+            }
+        });
+
+        if (feature.name) {
+            polygon.bindPopup(`<strong>${feature.name}</strong><br>${feature.admin_type || ''}`);
+        }
+
+        layerGroup.addLayer(polygon);
     });
 }

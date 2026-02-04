@@ -1,13 +1,17 @@
 // Supabase Configuration
-// Replace these with your actual Supabase project credentials
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// Credentials are loaded from env.js (local dev) or injected by GitHub Actions (production)
+const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.error('Missing Supabase credentials. Copy js/env.template.js to js/env.js and add your credentials.');
+}
 
 // Map Configuration
 const MAP_CONFIG = {
-    // Default center (San Francisco)
-    defaultCenter: [37.7749, -122.4194],
-    defaultZoom: 12,
+    // Default center (Continental USA - zoomed to Colorado area)
+    defaultCenter: [39.0, -105.5],
+    defaultZoom: 7,
 
     // Tile layer (OpenStreetMap)
     tileLayer: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -17,5 +21,5 @@ const MAP_CONFIG = {
 // Table names in Supabase
 const TABLES = {
     indexed: 'locations_indexed',
-    noIndex: 'locations_no_index'
+    noIndex: 'combined'  // Non-indexed polygon data
 };
