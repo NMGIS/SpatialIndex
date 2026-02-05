@@ -46,11 +46,11 @@ async function runComparison() {
         }
 
         // Query sequentially to avoid cache effects
+        // Display each result as soon as its query finishes
         resultNoIndex = await queryCombinedBbox(bounds);
-        resultIndexed = await queryIndexedBbox(bounds);
-
-        // Update displays
         updateResults('noIndex', resultNoIndex);
+
+        resultIndexed = await queryIndexedBbox(bounds);
         updateResults('indexed', resultIndexed);
 
         // Highlight faster result
