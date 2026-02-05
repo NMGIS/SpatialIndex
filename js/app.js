@@ -3,6 +3,8 @@ const runQueryBtn = document.getElementById('run-query-btn');
 const queryTypeSelect = document.getElementById('query-type');
 const timeNoIndex = document.getElementById('time-no-index');
 const timeIndexed = document.getElementById('time-indexed');
+const dbTimeNoIndex = document.getElementById('db-time-no-index');
+const dbTimeIndexed = document.getElementById('db-time-indexed');
 const countNoIndex = document.getElementById('count-no-index');
 const countIndexed = document.getElementById('count-indexed');
 
@@ -53,8 +55,8 @@ async function runComparison() {
         resultIndexed = await queryIndexedBbox(bounds);
         updateResults('indexed', resultIndexed);
 
-        // Highlight faster result
-        highlightFaster(resultNoIndex.time, resultIndexed.time);
+        // Highlight faster result based on DB time (true index metric)
+        highlightFaster(resultNoIndex.serverTime, resultIndexed.serverTime);
 
     } catch (error) {
         console.error('Error running comparison:', error);
@@ -70,10 +72,18 @@ async function runComparison() {
  */
 function updateResults(mapType, result) {
     const timeEl = mapType === 'indexed' ? timeIndexed : timeNoIndex;
+    const dbTimeEl = mapType === 'indexed' ? dbTimeIndexed : dbTimeNoIndex;
     const countEl = mapType === 'indexed' ? countIndexed : countNoIndex;
 
-    // Update timing
+    // Update client timing
     timeEl.textContent = `${result.time.toFixed(2)} ms`;
+
+    // Update DB timing
+    if (result.serverTime != null) {
+        dbTimeEl.textContent = `${result.serverTime.toFixed(2)} ms`;
+    } else {
+        dbTimeEl.textContent = 'N/A';
+    }
 
     // Update count
     countEl.textContent = result.data.length;
@@ -92,6 +102,8 @@ function updateResults(mapType, result) {
 function resetTimingDisplay() {
     timeNoIndex.textContent = '--';
     timeIndexed.textContent = '--';
+    dbTimeNoIndex.textContent = '--';
+    dbTimeIndexed.textContent = '--';
     countNoIndex.textContent = '--';
     countIndexed.textContent = '--';
 

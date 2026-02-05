@@ -34,8 +34,14 @@
                 <div class="map-header">
                     <h2>Without Spatial Index</h2>
                     <div class="timing">
-                        <span class="label">Query time:</span>
-                        <span id="time-no-index" class="time">--</span>
+                        <div class="timing-row">
+                            <span class="label">DB time:</span>
+                            <span id="db-time-no-index" class="time db-time">--</span>
+                        </div>
+                        <div class="timing-row timing-row-secondary">
+                            <span class="label">Client time:</span>
+                            <span id="time-no-index" class="time client-time">--</span>
+                        </div>
                     </div>
                 </div>
                 <div id="map-no-index" class="map"></div>
@@ -48,8 +54,14 @@
                 <div class="map-header">
                     <h2>With Spatial Index</h2>
                     <div class="timing">
-                        <span class="label">Query time:</span>
-                        <span id="time-indexed" class="time">--</span>
+                        <div class="timing-row">
+                            <span class="label">DB time:</span>
+                            <span id="db-time-indexed" class="time db-time">--</span>
+                        </div>
+                        <div class="timing-row timing-row-secondary">
+                            <span class="label">Client time:</span>
+                            <span id="time-indexed" class="time client-time">--</span>
+                        </div>
                     </div>
                 </div>
                 <div id="map-indexed" class="map"></div>

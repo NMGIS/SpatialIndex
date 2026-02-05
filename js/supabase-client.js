@@ -97,9 +97,13 @@ async function queryCombinedBbox(bounds) {
         throw error;
     }
 
+    const rows = data || [];
+    const serverTime = rows.length > 0 ? Math.max(...rows.map(r => r.server_ms)) : null;
+    const features = rows.map(({ server_ms, ...rest }) => rest);
     return {
-        data: data || [],
+        data: features,
         time: endTime - startTime,
+        serverTime: serverTime,
         isPolygon: true
     };
 }
@@ -131,9 +135,13 @@ async function queryIndexedBbox(bounds) {
         throw error;
     }
 
+    const rows = data || [];
+    const serverTime = rows.length > 0 ? Math.max(...rows.map(r => r.server_ms)) : null;
+    const features = rows.map(({ server_ms, ...rest }) => rest);
     return {
-        data: data || [],
+        data: features,
         time: endTime - startTime,
+        serverTime: serverTime,
         isPolygon: true
     };
 }

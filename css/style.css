@@ -110,20 +110,38 @@ main {
 
 .timing {
     display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.timing-row {
+    display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
 .timing .label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #666;
 }
 
-.timing .time {
+.timing .db-time {
     font-size: 1.1rem;
     font-weight: 700;
     font-family: 'Courier New', monospace;
     color: #2c3e50;
+}
+
+.timing .client-time {
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: 'Courier New', monospace;
+    color: #888;
+}
+
+.timing-row-secondary .label {
+    font-size: 0.8rem;
+    color: #999;
 }
 
 .map {
@@ -175,15 +193,15 @@ footer {
 }
 
 /* Loading state */
-.loading .time {
+.loading .db-time {
     color: #95a5a6;
 }
 
 /* Highlight faster result */
-.faster .time {
+.faster .db-time {
     color: #27ae60;
 }
 
-.slower .time {
+.slower .db-time {
     color: #e74c3c;
 }
