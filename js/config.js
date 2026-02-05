@@ -9,9 +9,9 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 // Map Configuration
 const MAP_CONFIG = {
-    // Default center (Continental USA - zoomed to Colorado area)
-    defaultCenter: [39.0, -105.5],
-    defaultZoom: 7,
+    // Default center (Northern California)
+    defaultCenter: [40.847175358087284, -121.4281273638339],
+    defaultZoom: 10,
 
     // Tile layer (OpenStreetMap)
     tileLayer: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
