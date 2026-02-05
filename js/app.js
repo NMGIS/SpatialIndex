@@ -1,6 +1,5 @@
 // DOM Elements
 const runQueryBtn = document.getElementById('run-query-btn');
-const queryTypeSelect = document.getElementById('query-type');
 const timeNoIndex = document.getElementById('time-no-index');
 const timeIndexed = document.getElementById('time-indexed');
 const dbTimeNoIndex = document.getElementById('db-time-no-index');
@@ -8,8 +7,6 @@ const dbTimeIndexed = document.getElementById('db-time-indexed');
 const countNoIndex = document.getElementById('count-no-index');
 const countIndexed = document.getElementById('count-indexed');
 
-// Radius for radius queries (in meters)
-const SEARCH_RADIUS = 5000;
 
 /**
  * Initialize the application
@@ -35,7 +32,6 @@ async function runComparison() {
     clearMarkers();
 
     try {
-        const queryType = queryTypeSelect.value;
         let resultNoIndex, resultIndexed;
 
         const bounds = getCurrentBounds();
