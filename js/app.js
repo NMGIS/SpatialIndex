@@ -40,7 +40,8 @@ async function runComparison() {
     clearMarkers();
 
     try {
-        let resultNoIndex, resultIndexed;
+        let resultNoIndex = null;
+        let resultIndexed = null;
 
         const bounds = getCurrentBounds();
         const zoom = getCurrentZoom();
@@ -53,27 +54,41 @@ async function runComparison() {
 
         // Randomize query order to distribute cache-warming advantage fairly
         const noIndexFirst = Math.random() < 0.5;
+        const queries = noIndexFirst
+            ? [
+                { key: 'noIndex', fn: () => queryCombinedBbox(bounds) },
+                { key: 'indexed', fn: () => queryIndexedBbox(bounds) }
+              ]
+            : [
+                { key: 'indexed', fn: () => queryIndexedBbox(bounds) },
+                { key: 'noIndex', fn: () => queryCombinedBbox(bounds) }
+              ];
 
-        if (noIndexFirst) {
-            resultNoIndex = await queryCombinedBbox(bounds);
-            updateResults('noIndex', resultNoIndex);
-
-            resultIndexed = await queryIndexedBbox(bounds);
-            updateResults('indexed', resultIndexed);
-        } else {
-            resultIndexed = await queryIndexedBbox(bounds);
-            updateResults('indexed', resultIndexed);
-
-            resultNoIndex = await queryCombinedBbox(bounds);
-            updateResults('noIndex', resultNoIndex);
+        for (const query of queries) {
+            try {
+                const result = await query.fn();
+                if (query.key === 'noIndex') resultNoIndex = result;
+                else resultIndexed = result;
+                updateResults(query.key, result);
+            } catch (err) {
+                console.error(`${query.key} query failed:`, err);
+                showQueryError(query.key, err);
+            }
         }
 
-        // Highlight faster result based on DB time (true index metric)
-        highlightFaster(resultNoIndex.serverTime, resultIndexed.serverTime);
+        // Highlight based on DB time if both succeeded
+        if (resultNoIndex && resultIndexed) {
+            highlightFaster(resultNoIndex.serverTime, resultIndexed.serverTime);
+        } else if (resultNoIndex && !resultIndexed) {
+            // Only non-indexed succeeded
+            highlightFaster(resultNoIndex.serverTime, Infinity);
+        } else if (!resultNoIndex && resultIndexed) {
+            // Only indexed succeeded
+            highlightFaster(Infinity, resultIndexed.serverTime);
+        }
 
     } catch (error) {
         console.error('Error running comparison:', error);
-        alert('Error running query. Check console for details.');
     } finally {
         runQueryBtn.disabled = false;
         runQueryBtn.textContent = 'Run Spatial Query';
@@ -107,6 +122,20 @@ function updateResults(mapType, result) {
     } else {
         addMarkers(mapType, result.data);
     }
+}
+
+/**
+ * Show error state for a failed query
+ */
+function showQueryError(mapType, err) {
+    const timeEl = mapType === 'indexed' ? timeIndexed : timeNoIndex;
+    const dbTimeEl = mapType === 'indexed' ? dbTimeIndexed : dbTimeNoIndex;
+    const countEl = mapType === 'indexed' ? countIndexed : countNoIndex;
+
+    const isTimeout = err && err.code === '57014';
+    dbTimeEl.textContent = isTimeout ? 'Timed out' : 'Error';
+    timeEl.textContent = isTimeout ? 'Timed out' : 'Error';
+    countEl.textContent = '--';
 }
 
 /**
