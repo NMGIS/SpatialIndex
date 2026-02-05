@@ -6,6 +6,13 @@ const dbTimeNoIndex = document.getElementById('db-time-no-index');
 const dbTimeIndexed = document.getElementById('db-time-indexed');
 const countNoIndex = document.getElementById('count-no-index');
 const countIndexed = document.getElementById('count-indexed');
+const scoreIndexedEl = document.getElementById('score-indexed');
+const scoreNoIndexEl = document.getElementById('score-no-index');
+const scoreTieEl = document.getElementById('score-tie');
+const resetScoreBtn = document.getElementById('reset-score-btn');
+
+// Score tracking
+let score = { indexed: 0, noIndex: 0, tie: 0 };
 
 
 /**
@@ -17,6 +24,7 @@ function init() {
 
     // Set up event listeners
     runQueryBtn.addEventListener('click', runComparison);
+    resetScoreBtn.addEventListener('click', resetScore);
 }
 
 /**
@@ -43,13 +51,22 @@ async function runComparison() {
             return;
         }
 
-        // Query sequentially to avoid cache effects
-        // Display each result as soon as its query finishes
-        resultNoIndex = await queryCombinedBbox(bounds);
-        updateResults('noIndex', resultNoIndex);
+        // Randomize query order to distribute cache-warming advantage fairly
+        const noIndexFirst = Math.random() < 0.5;
 
-        resultIndexed = await queryIndexedBbox(bounds);
-        updateResults('indexed', resultIndexed);
+        if (noIndexFirst) {
+            resultNoIndex = await queryCombinedBbox(bounds);
+            updateResults('noIndex', resultNoIndex);
+
+            resultIndexed = await queryIndexedBbox(bounds);
+            updateResults('indexed', resultIndexed);
+        } else {
+            resultIndexed = await queryIndexedBbox(bounds);
+            updateResults('indexed', resultIndexed);
+
+            resultNoIndex = await queryCombinedBbox(bounds);
+            updateResults('noIndex', resultNoIndex);
+        }
 
         // Highlight faster result based on DB time (true index metric)
         highlightFaster(resultNoIndex.serverTime, resultIndexed.serverTime);
@@ -123,10 +140,32 @@ function highlightFaster(timeNoIdx, timeIdx) {
     if (timeIdx < timeNoIdx) {
         panelIndexed.classList.add('faster');
         panelNoIndex.classList.add('slower');
+        score.indexed++;
     } else if (timeNoIdx < timeIdx) {
         panelNoIndex.classList.add('faster');
         panelIndexed.classList.add('slower');
+        score.noIndex++;
+    } else {
+        score.tie++;
     }
+    updateScoreboard();
+}
+
+/**
+ * Update the scoreboard display
+ */
+function updateScoreboard() {
+    scoreIndexedEl.textContent = score.indexed;
+    scoreNoIndexEl.textContent = score.noIndex;
+    scoreTieEl.textContent = score.tie;
+}
+
+/**
+ * Reset the score
+ */
+function resetScore() {
+    score = { indexed: 0, noIndex: 0, tie: 0 };
+    updateScoreboard();
 }
 
 // Initialize when DOM is ready

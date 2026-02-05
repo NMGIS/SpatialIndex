@@ -22,6 +22,16 @@
             <button id="run-query-btn">Run Spatial Query</button>
             <span class="query-desc">Queries the current map extent (bounding box)</span>
         </div>
+        <div class="scoreboard-wrapper">
+            <div class="scoreboard">
+                <span class="score indexed-score">Indexed faster: <strong id="score-indexed">0</strong></span>
+                <span class="score-divider">|</span>
+                <span class="score no-index-score">Non-indexed faster: <strong id="score-no-index">0</strong></span>
+                <span class="score-divider">|</span>
+                <span class="score tie-score">Tie: <strong id="score-tie">0</strong></span>
+                <button id="reset-score-btn" title="Reset score">Reset</button>
+            </div>
+        </div>
 
         <div class="maps-container">
             <div class="map-panel">
@@ -72,6 +82,24 @@
                 The left table has no spatial index, while the right table uses a GiST index
                 on the geometry column. Pan/zoom the maps and click "Run Spatial Query" to
                 see the performance difference.
+            </p>
+            <h3>Why do we randomize the query order?</h3>
+            <p>
+                Databases cache recently accessed data in memory. Whichever query runs first
+                has to load data from disk, while the second query gets a free speed boost
+                because that data is already in memory. To keep the comparison fair, we
+                randomly pick which query goes first each time. Run several queries and
+                watch the scoreboard for a balanced picture.
+            </p>
+            <h3>Why is the non-indexed query sometimes faster?</h3>
+            <p>
+                A spatial index helps the database skip directly to the relevant rows instead
+                of scanning the entire table. But that shortcut has its own overhead. When
+                the data is already cached in memory from a previous query, or when the search
+                area is small enough that there isn't much to scan through, the non-indexed
+                table can keep up or even win. The index advantage becomes more obvious on
+                larger search areas with more data to sift through. Try zooming out and
+                querying a bigger region to see it.
             </p>
         </div>
     </main>
