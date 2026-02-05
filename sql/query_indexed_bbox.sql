@@ -1,6 +1,7 @@
 -- Run this in the Supabase SQL Editor to update the query_indexed_bbox function.
 -- Uses RETURNS TABLE to stream rows (avoids jsonb_agg timeout).
 -- Each row includes server_ms (elapsed time at that row); take the max on the client.
+-- SECURITY DEFINER bypasses the anon role's 3s timeout.
 
 DROP FUNCTION IF EXISTS query_indexed_bbox(float, float, float, float);
 
@@ -21,4 +22,5 @@ BEGIN
   LIMIT 500;
 END;
 $$ LANGUAGE plpgsql
+SECURITY DEFINER
 SET statement_timeout = '30s';
