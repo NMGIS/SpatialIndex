@@ -1,0 +1,23 @@
+name: Supabase Weekly Keep Alive
+
+on:
+  schedule:
+    # Runs every Sunday at 10:00 UTC
+    - cron: "0 10 * * 0"
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Query combined table
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          echo "Pinging Supabase..."
+          curl --fail-with-body -X GET \
+            "$SUPABASE_URL/rest/v1/combined?select=SMA_ID&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY"
