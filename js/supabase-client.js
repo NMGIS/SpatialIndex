@@ -115,6 +115,28 @@ async function queryCombinedBbox(bounds) {
  * @param {object} bounds - Leaflet bounds object
  * @returns {Promise<{data: Array, time: number}>}
  */
+/**
+ * Fetch PostgreSQL index & table scan statistics
+ * Returns cumulative stats from pg_stat_user_indexes and pg_stat_user_tables
+ */
+async function fetchIndexStats() {
+    const { data, error } = await supabaseClient.rpc('get_index_stats');
+
+    if (error) {
+        console.error('Stats error:', error);
+        return null;
+    }
+
+    return data && data.length > 0 ? data[0] : null;
+}
+
+/**
+ * Query indexed table (polygons) within a bounding box
+ * Returns GeoJSON for polygon display
+ *
+ * @param {object} bounds - Leaflet bounds object
+ * @returns {Promise<{data: Array, time: number}>}
+ */
 async function queryIndexedBbox(bounds) {
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();

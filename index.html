@@ -75,6 +75,39 @@
             </div>
         </div>
 
+        <div class="stats-panel">
+            <h3>PostgreSQL Index Statistics <span class="stats-label">(live from database)</span></h3>
+            <div class="stats-grid">
+                <div class="stats-column">
+                    <h4>Indexed Table</h4>
+                    <div class="stat-row">
+                        <span class="stat-label">Index scans:</span>
+                        <span id="stat-idx-scan" class="stat-value">--</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Tuples read (index):</span>
+                        <span id="stat-idx-tup-read" class="stat-value">--</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Tuples fetched:</span>
+                        <span id="stat-idx-tup-fetch" class="stat-value">--</span>
+                    </div>
+                </div>
+                <div class="stats-column">
+                    <h4>Non-Indexed Table</h4>
+                    <div class="stat-row">
+                        <span class="stat-label">Sequential scans:</span>
+                        <span id="stat-seq-scan" class="stat-value">--</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Tuples read (seq):</span>
+                        <span id="stat-seq-tup-read" class="stat-value">--</span>
+                    </div>
+                </div>
+            </div>
+            <p class="stats-hint">Index reads &gt; fetched = the index is filtering efficiently. Compare with sequential scan totals.</p>
+        </div>
+
         <div class="info-panel">
             <h3>How it works</h3>
             <p>

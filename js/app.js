@@ -10,10 +10,29 @@ const scoreIndexedEl = document.getElementById('score-indexed');
 const scoreNoIndexEl = document.getElementById('score-no-index');
 const scoreTieEl = document.getElementById('score-tie');
 const resetScoreBtn = document.getElementById('reset-score-btn');
+const statIdxScan = document.getElementById('stat-idx-scan');
+const statIdxTupRead = document.getElementById('stat-idx-tup-read');
+const statIdxTupFetch = document.getElementById('stat-idx-tup-fetch');
+const statSeqScan = document.getElementById('stat-seq-scan');
+const statSeqTupRead = document.getElementById('stat-seq-tup-read');
 
 // Score tracking
 let score = { indexed: 0, noIndex: 0, tie: 0 };
 
+
+/**
+ * Fetch and display PostgreSQL index statistics
+ */
+async function updateIndexStats() {
+    const stats = await fetchIndexStats();
+    if (!stats) return;
+
+    statIdxScan.textContent = stats.idx_scan.toLocaleString();
+    statIdxTupRead.textContent = stats.idx_tup_read.toLocaleString();
+    statIdxTupFetch.textContent = stats.idx_tup_fetch.toLocaleString();
+    statSeqScan.textContent = stats.noindex_seq_scan.toLocaleString();
+    statSeqTupRead.textContent = stats.noindex_seq_tup_read.toLocaleString();
+}
 
 /**
  * Initialize the application
@@ -25,6 +44,9 @@ function init() {
     // Set up event listeners
     runQueryBtn.addEventListener('click', runComparison);
     resetScoreBtn.addEventListener('click', resetScore);
+
+    // Load initial index stats
+    updateIndexStats();
 }
 
 /**
@@ -92,6 +114,7 @@ async function runComparison() {
     } finally {
         runQueryBtn.disabled = false;
         runQueryBtn.textContent = 'Run Spatial Query';
+        updateIndexStats();
     }
 }
 
