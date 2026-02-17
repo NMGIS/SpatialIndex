@@ -1,23 +1,48 @@
 name: Supabase Weekly Keep Alive
-
 on:
   schedule:
-    # Runs every Sunday at 10:00 UTC
-    - cron: "0 10 * * 0"
+    - cron: "0 10 * * 0,3"
   workflow_dispatch:
 
 jobs:
   keepalive:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Query combined table
+      - name: Query combined tables with random rows and columns
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          echo "Pinging Supabase..."
-          curl --fail-with-body -X GET \
-            "$SUPABASE_URL/rest/v1/combined?select=SMA_ID&limit=1" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY"
+          python3 - <<'EOF'
+          import urllib.request
+          import json
+          import random
+          import os
+
+          url = os.environ["SUPABASE_URL"]
+          key = os.environ["SUPABASE_ANON_KEY"]
+          headers = {
+              "apikey": key,
+              "Authorization": f"Bearer {key}"
+          }
+
+          def query_random(table):
+              offset = random.randint(0, 500)
+              endpoint = f"{url}/rest/v1/{table}?select=*&limit=5&offset={offset}"
+              req = urllib.request.Request(endpoint, headers=headers)
+              with urllib.request.urlopen(req) as response:
+                  data = json.loads(response.read())
+              if not data:
+                  # Offset may exceed table size, fall back to first row
+                  endpoint = f"{url}/rest/v1/{table}?select=*&limit=1"
+                  req = urllib.request.Request(endpoint, headers=headers)
+                  with urllib.request.urlopen(req) as response:
+                      data = json.loads(response.read())
+              row = data[0]
+              col = random.choice(list(row.keys()))
+              print(f"[{table}] column='{col}', value='{row[col]}'")
+
+          query_random("combined")
+          query_random("combined_indexed")
+          print("Done.")
+          EOF
